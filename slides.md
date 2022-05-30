@@ -17,6 +17,7 @@ drawings:
 # Docs
 # - https://sli.dev/guide/syntax.html
 # - https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
+# - https://www.w3.org/wiki/CSS/Properties/color/keywords
 ---
 
 # Falco
@@ -111,7 +112,8 @@ FIPS 140 covers cryptographic module and testing requirements in both hardware a
  -->
 
 ---
-layout: center
+layout: image-right
+image: /funny/camera-agent.png
 ---
 
 # Security monitoring
@@ -168,6 +170,8 @@ Topics and tools
 
 <!--
 missconfiguration
+
+how you collect metrics, alerts from  all of these?
 
 signature based
 
@@ -433,6 +437,7 @@ Deployment
 - Falco-sidekick UI
 - Grafana dashboards
 - ..., SysFlow, ELK
+- ..., Plugins
 
 Daemonset
 - Falco \
@@ -461,7 +466,7 @@ layout: two-cols
 ---
 
 # Language
-Syntax
+Syntax, https://github.com/falcosecurity/charts/tree/master/falco/rules
 
 Macros
 - name      (identificator)
@@ -487,39 +492,8 @@ Rules
 layout: default
 ---
 
-# Macros & Lists
+# Primitives
 Rules
-
-```lua
-- list: _container_engine_binaries
-  items: [dockerd, containerd, containerd-shim, "runc:[0:PARENT]","runc:[1:CHILD]", "runc:[2:INIT]"]
-
-```
-
-```lua
-- macro: docker_authorized_binaries
-  condition: >
-    proc.name in (_container_engine_binaries)
-    or proc.pname in (_container_engine_binaries)
-
-- macro: grub_authorized_activities
-  condition: >
-    proc.name = "grub2-mkconfig"
-    and proc.pname = "grub2-mkconfig"
-    and fd.name startswith /etc/grub
-
-" [CVE-2019-11246 on Mitre](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-11246)
-- macro: safe_kubectl_version
-  condition: (
-              jevt.value[/useragent] startswith "kubectl/v1.20" or
-              jevt.value[/useragent] startswith "kubectl/v1.19"
-              ...
-            )
-```
----
-
-# Rules
-Primitives
 
 Shell executed in container
 
@@ -544,6 +518,31 @@ ect.type = open and fd.name = /dev/video0 and not proc.name in (skype, zoom, web
 ```
 ---
 
+# Macros & Lists
+Rules
+
+```lua
+- list: _container_engine_binaries
+  items: [dockerd, containerd, containerd-shim, "runc:[0:PARENT]","runc:[1:CHILD]", "runc:[2:INIT]"]
+
+```
+
+```lua
+- macro: docker_authorized_binaries
+  condition: >
+    proc.name in (_container_engine_binaries)
+    or proc.pname in (_container_engine_binaries)
+
+  " [CVE-2019-11246 on Mitre](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-11246)
+- macro: safe_kubectl_version
+  condition: (
+              jevt.value[/useragent] startswith "kubectl/v1.20" or
+              jevt.value[/useragent] startswith "kubectl/v1.19"
+              ...
+            )
+```
+---
+
 
 # Filesystem integrity
 Rules
@@ -552,7 +551,9 @@ Rules
 - rule: Detect Write Below /etc/hosts
   desc: an attempt to write to /etc/hosts file (CVE-2020-8557)
   condition: open_write and container and fd.name=/etc/hosts
-  output: "File /etc/hosts opened for writing (user=%user.name command=%proc.cmdline parent=%proc.pname pcmdline=%proc.pcmdline file=%fd.name program=%proc.name gparent=%proc.aname[2] ggparent=%proc.aname[3] gggparent=%proc.aname[4] container_id=%container.id image=%container.image.repository)"
+  output: "File /etc/hosts opened for writing (user=%user.name command=%proc.cmdline parent=%proc.pname \
+           pcmdline=%proc.pcmdline file=%fd.name program=%proc.name gparent=%proc.aname[2] \
+           ggparent=%proc.aname[3] gggparent=%proc.aname[4] container_id=%container.id image=%container.image.repository)"
   priority: ERROR
   tags: [filesystem, mitre_persistence]
 ```
@@ -604,58 +605,24 @@ Rules
     or proc.aname[3] in (sudo, su)
     or proc.aname[4] in (sudo, su)
 ```
+--- 
 
----
-layout: two-cols
----
+# Compromised server process
+Rules
 
-# K8s audit rules
-
-https://github.com/falcosecurity/plugins/tree/master/plugins/k8saudit
-
+SQL injection attack?
 ```lua
-desc: An attempt to start a pod using the host pid NS.
-condition: kevt and pod and kcreate
-  and ka.req.pod.host_pid intersects (true) 
+condition: spawn_process and proc.name = mysqld and not proc_is_new
 ```
 
 ```lua
-condition: kevt and clusterrolebinding and kcreate and ka.req.binding.role=cluster-admin
+- macro: spawn_process
+  condition: syscall.type = execve
+
+- macro: proc_is_new
+  condition: proc.duration <= 5000000000
 ```
 
-```lua
-- macro: contains_private_credentials
-  condition: >
-   (ka.req.configmap.obj contains "access_key" or
-    ka.req.configmap.obj contains "access-key" or
-    ka.req.configmap.obj contains "token" or
-    ka.req.configmap.obj contains "secret" or
-    ka.req.configmap.obj contains "pass")
-```
-
-::right::
-
-<div class="m-2 pt-20">
-
-```lua
-Warning Pod started with privileged container
- (user=system:serviceaccount:kube-system:replicaset-controller
-  pod=nginx-deployment-5cdcc99dbf-rgw6z ns=default image=nginx)
-
-Driver Events:0
-Driver Drops:0
-Elapsed time: 0.004, Captured Events: 1, 224.62 eps
-Events detected: 1
-Rule counts by severity:
-   WARNING: 1
-Triggered rules by rule name:
-   Create Privileged Pod: 1
-Syscall event drop monitoring:
-   - event drop detected: 0 occurrences
-   - num times actions taken: 0
-```
-
-</div>
 
 ---
 layout: default
@@ -716,28 +683,152 @@ alertmanager:
 
 ---
 
-# UI, Dashboards and alerting
+# Dashboards and alerting
+Falcosidekick-ui >0.5.0, rewritten just month ago
 
-FIXME
-falcosidekick UI
-grafana dashboardy
-alerty
+
+---
+
+# Dashboards and alerting
+Grafana dashboards
+
+FIXME, ves audit dashboard
+
+---
+
+# Alert integration
+Sidekick
+
+```
+FIXME, falco alert json
+```
+
+https://github.com/falcosecurity/falcosidekick/blob/master/outputs/alertmanager.go
+
+---
+
+# Plugins
+
+Addded recently (>= v0.31)
+
+External sources
+- API noundaries, hardly extensible
+- Falco must expose a web server
+- TLS to manage
+- Doesnt work with managed K8s
+
+Features
+- dynamic shared libraries -> any language
+- allows falco to collect and extract fields from streams of events
+- source / extractor plugins
+
+Plugins:
+- K8s audit, AWS CloudTrail, JSON
+- https://sysdig.com/blog/pet-surveillance-falco/
+
+---
+layout: two-cols
+---
+
+# K8s audit rules
+
+https://github.com/falcosecurity/plugins/tree/master/plugins/k8saudit
+
+An attempt to start a pod using the host pid NS.
+```lua
+condition: kevt and pod and kcreate
+  and ka.req.pod.host_pid intersects (true) 
+```
+
+Detect pod starting a privileged container
+```lua
+condition: kevt 
+  and pod
+  and kcreate
+  and ka.req.pod.containers.privileged intersects (true)
+  and not ka.req.pod.containers.image.repository 
+    in (falco_privileged_images)
+```
+
+::right::
+
+<div class="m-2 pt-16">
+
+Updated role binding
+```lua
+condition: kevt 
+  and clusterrolebinding
+  and kcreate and ka.req.binding.role=cluster-admin
+```
+
+Credentials in configmap
+```lua
+- macro: contains_private_credentials
+  condition: >
+   (ka.req.configmap.obj contains "access_key" or
+    ka.req.configmap.obj contains "access-key" or
+    ka.req.configmap.obj contains "token" or
+    ka.req.configmap.obj contains "secret" or
+    ka.req.configmap.obj contains "pass")
+```
+</div>
+
+---
+layout: default
+---
+
+# CloudTrail
+Plugin
+
+
+```lua
+- rule: Console Login Without MFA
+  desc: Detect a console login without MFA.
+  condition:
+    ct.name="ConsoleLogin" and not ct.error exists
+    and ct.user.identitytype!="AssumedRole"
+    and json.value[/responseElements/ConsoleLogin]="Success"
+    and json.value[/additionalEventData/MFAUsed]="No"
+  output:
+    Detected a console login without MFA
+    (requesting user=%ct.user,
+     requesting IP=%ct.srcip,
+     AWS region=%ct.region)
+  priority: CRITICAL
+```
+<!--
+Falco Cloudtrail plugin can read AWS Cloudtrail logs and emit events for each Cloudtrail log entry.
+-->
 
 ---
 
 # Host compliance reporting
 (tohle je spis vata)
-OS Hardening a konfigurace
-Compliance
-Filesystem integrity management
 
+- OS Hardening a konfigurace
+- Compliance
+
+<!--
+Do it all your own way
+
+Custom AMI
+
+Chef innspec compliance rules
+-->
 ---
 
 # SysFlow.io analýza a možnosti
 (tohle je ted beta, budu to muset ještě rozpracovat)
 
-- Falco Cloudtrail plugin can read AWS Cloudtrail logs and emit events for each Cloudtrail log entry.
 
+
+<img src="/images/sysflow-outputs.png" class="m-10 tp-10 pr-15 center" />
+
+<!--
+SysFlow is a compact open telemetry format that records workload behaviors by connecting event and flow representations of process control flows, file interactions, and network communications
+
+The resulting abstraction encodes a graph structure that enables provenance reasoning on host and container environments.
+-->
 ---
 layout: fact
 ---
