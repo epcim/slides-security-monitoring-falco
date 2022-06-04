@@ -559,7 +559,7 @@ Rules
 # Filesystem integrity
 Rules
 
-```lua
+```lua {1|3|all}
 - rule: Detect Write Below /etc/hosts
   desc: an attempt to write to /etc/hosts file (CVE-2020-8557)
   condition: open_write and container and fd.name=/etc/hosts
@@ -570,23 +570,6 @@ Rules
   tags: [filesystem, mitre_persistence]
 ```
 
----
-
-# Inbound ssh
-Rules
-
-```lua
-- rule: Inbound SSH Connection
-  desc: Detect Inbound SSH Connection
-  condition: >
-    ((evt.type in (accept,listen) and evt.dir=<) or
-      (evt.type in (recvfrom,recvmsg))) and ssh_port
-      and not is_kubernetes
-  output: >
-    Inbound SSH connection (user=%user.name client_ip=%fd.cip client_port=%fd.cport server_ip=%fd.sip)
-  priority: WARNING
-  tags: [ssh, network]
-```
 
 ---
 
@@ -636,12 +619,51 @@ condition: spawn_process and proc.name = mysqld and not proc_is_new
 ```
 
 ---
+layout: two-cols
+---
 
-# How to load rules & tweaks
+# Howto rules
+What we tweaked?
 
-- pre...
-- in the image + structure
-- helm..
+```yaml {2}
+# override upstream defined macro
+- macro: user_known_read_sensitive_files_activities
+  condition: >
+    (sre_authorized_activities)
+```
+
+
+
+```sh
+rules/
+├── falco_rules.preload.yaml
+├── falco_rules-10-exceptions.yaml
+├── falco_rules-20-security.yaml
+├── falco_rules-30-apps.yaml
+├── falco_rules-40-fim.yaml
+└── falco_rules-50-cve.yaml
+```
+
+
+::right::
+
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+
+- macro: `failed_k8s_annotation`
+- macro: `sre|host|infra_authz_activities`
+- macro: `sre|aws|gcp_known_vendoractions`
+- macro: `sre_known_ports`
+- list: `sre|aws|gcp_known_commands` (vendor executed)
+- list: ....
+
+
+<!-- 
+ (to avoid false-positive alerts)
+-->
 
 ---
 layout: default
@@ -701,15 +723,22 @@ alertmanager:
 </div>
 
 ---
-# Alertmanager
-What we tweaked
+# Alertmanager integration
+What we tweaked?
 
-FIXME
+[falcosidekick/outputs/alertmanager.go](https://github.com/falcosecurity/falcosidekick/blob/master/outputs/alertmanager.go)
 
-Rule name
-Labels
-re-maped severities
+- remap falco.Priority to our Alertmanager expecrted severities
+- output simplified, updated -> Alert.description (instead of `info` field)
+- `alert_name != rule_name` (alerts prefixed by App name - k8s label annotation)
+- strip cardinalities of syscall drops (in upstream)
+- pass k8s annotations to alert
+- pass OriginHost
+- filter/drop based on k8s anotations
 
+<!-- 
+Dalsi integrace - with more lower priority -> short term search
+-->
 ---
 
 # Dashboards and alerting
@@ -852,7 +881,6 @@ The resulting abstraction encodes a graph structure that enables provenance reas
 ---
 
 # Plugin example
-https://sysdig.com/blog/pet-surveillance-falco/
 
 ```lua {all|4}
 
@@ -866,8 +894,6 @@ https://sysdig.com/blog/pet-surveillance-falco/
 ```
 
 ---
-layout: fact
----
 
 # Learn More
 
@@ -875,10 +901,16 @@ layout: fact
 
 <hr/>
 
-[SysFlow telemetry](https://github.com/sysflow-telemetry) \
-  [SysFlow](https://sysflow.io/) is a cloud-native system telemetry framework that enables the creation of security analytics on a scalable, pluggable open-source platform.
+- [SysFlow](https://sysflow.io/) is a cloud-native system telemetry framework that enables the creation of security analytics on a scalable, pluggable open-source platform.
 
-[Kubescape](https://github.com/armosec/kubescape) \
+  - [SysFlow telemetry](https://github.com/sysflow-telemetry)
+  - [SysFlow & Sidekick analytics](https://falco.org/blog/sysflow-falco-sidekick) PoC
+
+- Plugin [Pet surveillance with falco](https://sysdig.com/blog/pet-surveillance-falco) PoC 
+
+- AI/ML Anomaly detection
+
+- [Kubescape](https://github.com/armosec/kubescape) \
   K8s open-source tool providing a multi-cloud K8s single pane of glass, including risk analysis, security compliance, RBAC visualizer and image vulnerabilities scanning
 
 ---
@@ -903,12 +935,34 @@ eBPF Roadmap
 ---
 layout: center
 ---
+
 # Backup slides
 AuditD comparison
 
 ![](/screenshots/ebpf-03.png)
 
 ---
+
+# Backup slides
+Inbound ssh rule
+
+```lua
+
+- rule: Inbound SSH Connection
+  desc: Detect Inbound SSH Connection
+  condition: >
+    ((evt.type in (accept,listen) and evt.dir=<) or
+      (evt.type in (recvfrom,recvmsg))) and ssh_port
+      and not is_kubernetes
+  output: >
+    Inbound SSH connection (user=%user.name client_ip=%fd.cip client_port=%fd.cport server_ip=%fd.sip)
+  priority: WARNING
+  tags: [ssh, network]
+
+```
+
+---
+
 # Backup slides
 K8s audit -> plugin
 
@@ -917,6 +971,7 @@ K8s audit -> plugin
 
 
 ```lua
+
 - rule: Attach/Exec Pod
   desc: >
     Detect any attempt to attach/exec to a pod
@@ -925,9 +980,11 @@ K8s audit -> plugin
   priority: NOTICE
   source: k8s_audit
   tags: [k8s]
+
 ```
 
 ```lua
+
   - list: falco_hostpid_images
   items: []
 
@@ -938,15 +995,18 @@ K8s audit -> plugin
   priority: WARNING
   source: k8s_audit
   tags: [k8s]
+
 ```
 
 ---
+
 # Backup slides
 Rules from helm chart
 
 https://github.com/falcosecurity/falco/tree/master/rules
 
 ```lua
+
   rules-traefik.yaml: |-
     - macro: traefik_consider_syscalls
       condition: (evt.num < 0)
@@ -975,4 +1035,5 @@ https://github.com/falcosecurity/falco/tree/master/rules
       condition: spawned_process and not proc.name in (traefik_allowed_processes) and app_traefik
       output: Unexpected process spawned in traefik container (command=%proc.cmdline pid=%proc.pid user=%user.name %container.info image=%container.image)
       priority: NOTICE
+
 ```
