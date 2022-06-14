@@ -55,9 +55,9 @@ Speaker
 Works as SRE / DEV at F5 Czech Republic s.r.o. 
 (Volterra.io, Mirantis, IBM, ...)
 
-n(vi)m lover <mdi-circle-small/> maker <mdi-circle-small/> geek <mdi-circle-small/> quad fpv pilot
+n(vi)m lover <mdi-circle-small/> maker <mdi-circle-small/> golfer <mdi-circle-small/> quad fpv pilot
 
-<div style="color: deepskyblue">
+<div style="color: #00b4c8">
 
 - http://apealive.net/about_petr/
 - http://twitter.com/epcim
@@ -220,9 +220,9 @@ layout: fact
 # Falco
 May 16, 2016 - Sysdig introducing open source, behavioral security
 
-![](/images/falco-overview2.png)
+<img src="/images/falco-overview2.png" class="pl-40 h-50 center" />
 
-[Falco.org](https://falco.org) 'runtime security project detecting unexpected behavior, intrusions, and data theft in real time!
+[Falco.org](https://falco.org) runtime security project detecting unexpected behavior, intrusions, and data theft in real time!
 
 <!-- 
 Donated to CNCF
@@ -258,7 +258,7 @@ Falco
 
 *There are a million ways a burglar can break into your home, but once they do they’re going to steal your jewelry.*
 
-<div style="color: deepskyblue">
+<div style="color: #00b4c8">
 <br/>
 ...
 
@@ -278,19 +278,19 @@ Falco
 
 **File integrity monitoring**: (checksums)
 
-<div class="ml-10 center" style="color: deepskyblue">
+<div class="ml-10 center" style="color: #00b4c8">
 Watch for any OS activity that is writing to a file of interest, and be alerted in real-time.
 </div>
  
 **Network monitoring** (signatures)
 
-<div class="ml-10 center" style="color: deepskyblue">
+<div class="ml-10 center" style="color: #00b4c8">
 Falco see I/O “from the inside” with an immediate correlation between applications and traffic.
 </div>
  
 Linux has multiple security modules ~ advanced access control systems with sophisticated policies and concepts. As a result, understanding and configuring them is a rather complex undertaking.
 
-<div class="ml-10 center" style="color: deepskyblue">
+<div class="ml-10 center" style="color: #00b4c8">
 Falco is far simpler to understand and configure, "detection-only".
 </div>
 
@@ -398,7 +398,7 @@ Enhanced Telemetry Collection -> annotation
 - socket info
 
 Performance
-- lower resource impact (network, files, proceses)
+- lower resource impact (net, file, proc)
 - avoid transfer of all audit data to userspace
 - real time procesing
 
@@ -491,7 +491,7 @@ Rules
 
 <style>
 code {
-  color: violet;
+  color: blueviolet;
 };
 blockquote {
   code {
@@ -559,7 +559,7 @@ Rules
 # Filesystem integrity
 Rules
 
-```lua {1|3|all}
+```lua {1|3|5|all}
 - rule: Detect Write Below /etc/hosts
   desc: an attempt to write to /etc/hosts file (CVE-2020-8557)
   condition: open_write and container and fd.name=/etc/hosts
@@ -605,7 +605,7 @@ Rules
 # Compromised server process
 Rules
 
-SQL injection attack?
+HitchSQL injection attack?
 ```lua
 condition: spawn_process and proc.name = mysqld and not proc_is_new
 ```
@@ -657,7 +657,7 @@ rules/
 - macro: `sre|host|infra_authz_activities`
 - macro: `sre|aws|gcp_known_vendoractions`
 - macro: `sre_known_ports`
-- list: `sre|aws|gcp_known_commands` (vendor executed)
+- list: `sre|aws|gcp_known_commands`
 - list: ....
 
 
@@ -742,23 +742,36 @@ Dalsi integrace - with more lower priority -> short term search
 ---
 
 # Dashboards and alerting
+
+<img src="/images/webui_01-b.png" class="m-0 fit" />
+
+<!--
 Falcosidekick-ui >0.5.3, rewritten month ago
-
-<img src="/images/webui_01.png" class="m-0 fit center" />
-
+-->
 ---
 
 # Dashboards and alerting
+
+<img src="/images/webui_03-s.png" class="m-0 fit center" />
+
+<!--
 Events
-
-<img src="/images/webui_03.png" class="m-0 fit center" />
-
+-->
 ---
 
-# Dashboards and alerting
-Custom Grafana dashboards
+# Falco Audit in Grafana
 
-FIXME, ves audit dashboard .. SSH tracking? DOCs
+<img src="/images/grafana-audit-view-s.png" class="m-0 fit center" />
+
+<!--
+Custom dasshboards
+-->
+---
+
+# Elasticsearch
+Record detail
+
+<img src="/images/es-event-detail-1.png" class="m-0 fit center" />
 
 ---
 layout: two-cols
@@ -914,6 +927,17 @@ The resulting abstraction encodes a graph structure that enables provenance reas
   K8s open-source tool providing a multi-cloud K8s single pane of glass, including risk analysis, security compliance, RBAC visualizer and image vulnerabilities scanning
 
 ---
+layout: end
+---
+
+---
+
+# Backup slides
+Falco architectural overview
+
+![](/images/falco-architectural-overview.png)
+
+--- 
 
 # Backup slides
 eBPF network observability
@@ -927,19 +951,19 @@ eBPF network observability
 -->
 
 ---
-# Backup slides
-eBPF Roadmap
-
-![](/screenshots/ebpf-12.png)
-
----
 layout: center
+---
+# Backup slides
+SysFlow.io integration to sidekick
+
+<img src="/images/sysflow-falco-sidekick-ui.png" class="h-100 center" />
+
 ---
 
 # Backup slides
 AuditD comparison
 
-![](/screenshots/ebpf-03.png)
+<img src="/screenshots/ebpf-03.png" class="h-80 center" />
 
 ---
 
@@ -966,36 +990,27 @@ Inbound ssh rule
 # Backup slides
 K8s audit -> plugin
 
-* removed K8S audit logs from Falco [#1952] (https://github.com/falcosecurity/falco/pull/1952)
-* now under plugins: https://github.com/falcosecurity/plugins/tree/master/plugins/k8saudit
+* Removed K8S audit logs from Falco [#1952] (https://github.com/falcosecurity/falco/pull/1952)
+* Now under plugins: https://github.com/falcosecurity/plugins
 
 
 ```lua
-
 - rule: Attach/Exec Pod
-  desc: >
-    Detect any attempt to attach/exec to a pod
-  condition: kevt_started and pod_subresource and kcreate and ka.target.subresource in (exec,attach) and not user_known_exec_pod_activities
-  output: Attach/Exec to pod (user=%ka.user.name pod=%ka.target.name ns=%ka.target.namespace action=%ka.target.subresource command=%ka.uri.param[command])
-  priority: NOTICE
-  source: k8s_audit
-  tags: [k8s]
-
+  desc: Detect any attempt to attach/exec to a pod
+  condition: |
+    kevt_started and pod_subresource and kcreate and ka.target.subresource in (exec,attach)
+    and not user_known_exec_pod_activities
 ```
 
 ```lua
-
-  - list: falco_hostpid_images
+- list: falco_hostpid_images
   items: []
 
 - rule: Create HostPid Pod
   desc: Detect an attempt to start a pod using the host pid namespace.
-  condition: kevt and pod and kcreate and ka.req.pod.host_pid intersects (true) and not ka.req.pod.containers.image.repository in (falco_hostpid_images)
-  output: Pod started using host pid namespace (user=%ka.user.name pod=%ka.resp.name ns=%ka.target.namespace images=%ka.req.pod.containers.image)
-  priority: WARNING
-  source: k8s_audit
-  tags: [k8s]
-
+  condition: |
+    kevt and pod and kcreate and ka.req.pod.host_pid intersects (true)
+    and not ka.req.pod.containers.image.repository in (falco_hostpid_images)
 ```
 
 ---
@@ -1018,22 +1033,4 @@ https://github.com/falcosecurity/falco/tree/master/rules
 
     - list: traefik_allowed_inbound_ports_tcp
       items: [443, 80, 8080]
-
-    - rule: Unexpected inbound tcp connection traefik
-      desc: Detect inbound traffic to traefik using tcp on a port outside of expected set
-      condition: inbound and evt.rawres >= 0 and not fd.sport in (traefik_allowed_inbound_ports_tcp) and app_traefik
-      output: Inbound network connection to traefik on unexpected port (command=%proc.cmdline pid=%proc.pid connection=%fd.name sport=%fd.sport user=%user.name %container.info image=%container.image)
-      priority: NOTICE
-
-    # Restricting spawned processes to selected set
-
-    - list: traefik_allowed_processes
-      items: ["traefik"]
-
-    - rule: Unexpected spawned process traefik
-      desc: Detect a process started in a traefik container outside of an expected set
-      condition: spawned_process and not proc.name in (traefik_allowed_processes) and app_traefik
-      output: Unexpected process spawned in traefik container (command=%proc.cmdline pid=%proc.pid user=%user.name %container.info image=%container.image)
-      priority: NOTICE
-
 ```
