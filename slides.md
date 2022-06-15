@@ -288,6 +288,7 @@ Falco
 
 Falco ~~ a mix between snort, ossec and strace
 -->
+
 ---
 
 # Comparison to existing approaches
@@ -356,7 +357,7 @@ Falco architecture
 layout: center
 ---
 
-# Kernel driver
+# Kernel integration
 Falco
 
 - eBPF
@@ -423,8 +424,8 @@ Enhanced Telemetry Collection -> annotation
 - socket info
 
 Performance
-- lower resource impact (net, file, proc)
 - avoid transfer of all audit data to userspace
+- lower resource impact (net, file, proc)
 - real time procesing
 
 eBPF Verifier verifies the safety of eBPF programs
@@ -455,7 +456,7 @@ layout: two-cols
 
 # Deployment
 
-Configuration
+K8s & Configuration
 
 Deployment
 - Falco-sidekick, prom. exporter
@@ -475,10 +476,12 @@ Daemonset
 What to enable?
 - driver-loader (DKMS, private builds)
 - docker, containerd, cri-o
-- w/k8s metadata, audit
+- w/k8s metadata
 - custom rules
 - threadiness, maxBurst, eventDrops
 - priority/severity level
+- plugins
+  - k8s audit, ...
 
 </div>
 
@@ -565,15 +568,14 @@ Rules
 - list: _container_engine_binaries
   items: [dockerd, containerd, containerd-shim, "runc:[0:PARENT]","runc:[1:CHILD]", "runc:[2:INIT]"]
 
-```
-
-```lua
 - macro: docker_authorized_binaries
   condition: >
     proc.name in (_container_engine_binaries)
     or proc.pname in (_container_engine_binaries)
+```
 
-  " [CVE-2019-11246 on Mitre](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-11246)
+```lua
+" [CVE-2019-11246 on Mitre](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-11246)
 - macro: safe_kubectl_version
   condition: (
               jevt.value[/useragent] startswith "kubectl/v1.20" or
@@ -753,6 +755,12 @@ alertmanager:
 
 </div>
 
+<!--
+- premapovali jsme severity
+- strip cardinalities, syscall drops
+- output formating -> alert description
+-->
+
 ---
 # Alertmanager integration
 What we tweaked?
@@ -786,6 +794,11 @@ Record detail
 
 <img src="/images/es-event-detail-1.png" class="m-0 fit center" />
 
+<!-- 
+log/audit path -> ES -> archive
+
+example with many details !
+-->
 ---
 
 # Falco Audit in Grafana
@@ -805,7 +818,7 @@ layout: two-cols
 Addded recently (>= v0.31)
 
 External sources
-- API noundaries, hardly extensible
+- API boundaries, hardly extensible
 - Falco must expose a web server
 - TLS to manage
 - Doesnt work with managed K8s
@@ -822,6 +835,7 @@ Features
 <br/>
 <br/>
 
+Available plugins:
 - K8s audit
 - AWS CloudTrail
 - JSON
@@ -903,7 +917,7 @@ Falco Cloudtrail plugin can read AWS Cloudtrail logs and emit events for each Cl
 
 ---
 
-# What is next step?
+# What is the next step?
 
 ```lua
 - rule: Pet detection, custom plugin
@@ -934,8 +948,9 @@ Sysflow.io
 ```
 
 <!-- 
-Falco, beharvioural - kdy sahnes na ... sperky
-Sysflow, flows/coalescing
+- Falco, beharvioural - kdy sahnes na  sperky
+- Sysflow, flows/coalescing
+
 -->
 
 ---
@@ -946,10 +961,12 @@ cloud-native system telemetry framework
 <img src="/images/sysflow-pipeline.png" class="m-10 tp-10 pr-15 center" />
 
 <!--
-SysFlow is a compact open telemetry format that records workload behaviors by connecting event and flow representations of process control flows, file interactions, and network communications
+SysFlow is a compact open telemetry format 
 
 semantically compressed system events
 
+that records workload behaviors 
+by connecting event and flow representations of process control flows, file interactions, and network communications
 
 - Reduces data footprints drastically when compared to raw system call collection
 - Reduces event fatigue (a.k.a. "too many alerts") 
@@ -969,19 +986,18 @@ image: /images/sysflow-graphlet-2.png
 - Node-level regulators
   - HyperLogLog sketch
   - Count-min sketch
+  - Tries
 
 <!-- 
-The resulting abstraction encodes a graph structure that enables provenance reasoning on host and container environments.
 
-- semantically reduce heavy hitters
-  to minimize burst
+- semantically reduce heavy hitters to minimize burst
 
-- Filesystem search..
-  Approximates the number of distinct items in a multiset
+- HyperLogLog - Approximates the number of distinct items in a multiset
 
-- Probabilistic frequency table of events
-  2-D Array M[w cols x d rows]
-  
+- Count-min - Probabilistic frequency table of events
+
+- Tries - Omezuje extensivni přístup k fs
+
 -->
 
 ---
@@ -993,8 +1009,6 @@ layout: two-cols
 [Documentation](https://falco.org/docs/getting-started/) · [GitHub](https://github.com/falcosecurity) · [Blog](https://falco.org/blog/)
 
 - [Falco & Plugins CloudNativeCon 2022](https://www.youtube.com/watch?v=tZI8Tzf1uzg)
-
-<hr/>
 
 - [SysFlow](https://sysflow.io/) is a cloud-native system telemetry framework that enables the creation of security analytics on a scalable, pluggable open-source platform
 
