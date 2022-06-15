@@ -1,3 +1,51 @@
+---
+layout: cover
+theme: seriph # https://sli.dev/themes/gallery.html
+background: https://source.unsplash.com/collection/94734566/1920x1080
+class: 'text-center'
+highlighter: shiki # https://sli.dev/custom/highlighters.html
+lineNumbers: false
+info: |
+  ## Falco
+  cloud native security a observability monitoring
+
+  Learn more at [falco.org](https://falco.org)
+drawings:
+  enabled: true
+  persist: false
+
+# Docs
+# - https://sli.dev/guide/syntax.html
+# - https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
+# - https://www.w3.org/wiki/CSS/Properties/color/keywords
+---
+
+# Falco
+
+Cloud native security a observability monitoring
+
+<div class="pt-12">
+  <span @click="$slidev.nav.next" class="px-2 py-1 rounded cursor-pointer" hover="bg-white bg-opacity-10">
+    Dive in! <carbon:arrow-right class="inline"/>
+  </span>
+</div>
+
+<!-- FIXME, add Vue Clock/watch -->
+
+<div class="abs-br m-6 flex gap-2">
+  <a href="https://github.com/epcim/slides-security-monitoring-falco" target="_blank" alt="GitHub"
+    class="text-xl icon-btn opacity-50 !border-none !hover:text-white">
+    <carbon-logo-github />
+  </a>
+</div>
+
+<!-- 
+Security monitoring byl donedávna obvykle jen o sběru všech možných logů a událostí z infrastruktury a jejich zpětné, často nepoužitelné, analýze. Implementace eBPF v linuxovém jádře ovšem otevřela platformu pro zcela jiný přístup. Observability a tracing v reálném čase při rozumných nárocích na zdroje a minimální footprint v systému. Současně se v cloud a kontejnerovém světě podstatně zvyšují nároky na zabezpečení a audit systémů. 
+
+Přednáška je postavena na zkušenostech z implementace Falco, hardening a testování security compliance cloud systémů. Dozvíte se něco málo o základních technologiích a prostředcích security monitoringu, auditu serverů, kontejnerů a kubernetes s Falco. Konfigurace, deployment, Falco rules a vytváření vlastních pravidel. Integrace s Prometheus alertmanager. Testování a compliance fyzických i cloud serverů. Nakonec se podíváme na analytické možnosti SysFlow.io a alerting.
+
+-->
+
 
 ---
 layout: two-cols
@@ -945,7 +993,8 @@ layout: two-cols
 - Employ AI/ML for anomaly detection
 
 ::right::
-<img src="/qr.png" class="mt-20 h-80" />
+
+<img src="/qr.png" class="mt-20 pl-10 h-80" />
 
 <!-- 
 - [Kubescape](https://github.com/armosec/kubescape) \
