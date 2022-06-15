@@ -72,6 +72,33 @@ n(vi)m lover <mdi-circle-small/> maker <mdi-circle-small/> golfer <mdi-circle-sm
 <img src="/images/pmi.jpg" class="m-15 h-80 rounded shadow center" />
 
 ---
+layout: image-right
+image: /funny/camera-agent.png
+---
+
+# Security monitoring
+
+SecOps coverage
+
+* detect intrusion
+* prevent intrusion
+* configuraion encorcement
+* audit all critical events
+* compliance checks & reporting
+* ...
+
+<!--
+Home security analogy:
+Prevent intrusion               > passwords/two factor, image scanning, fw
+- door lock, authz
+- wiwndow sensors
+- exterior camera
+Detect Intrusion                > falco
+- motion sensors
+- interior cameras
+-->
+
+---
 layout: center
 ---
 # Security monitoring
@@ -118,32 +145,6 @@ Purpose & requirements
 - FIPS 140 covers cryptographic module and testing requirements in both hardware and software.
  -->
 
----
-layout: image-right
-image: /funny/camera-agent.png
----
-
-# Security monitoring
-
-SecOps coverage
-
-* prevent intrusion
-* detect intrusion
-* audit all critical events
-* configuraion encorcement
-* compliance checks & reporting
-* ...
-
-<!--
-Home security analogy:
-Prevent intrusion               > passwords/two factor, image scanning, fw
-- door lock, authz
-- wiwndow sensors
-- exterior camera
-Detect Intrusion                > falco
-- motion sensors
-- interior cameras
--->
 
 ---
 
@@ -178,11 +179,13 @@ Topics and tools
 </div>
 
 <!--
+you probably have even today
+
+prikladem: antivirovs detekce, ruzna firewall reseni
+
 signature based
 
 prohrabavat stara data
-
-such you probably have even today
 
 how you collect metrics, alerts from  all of these?
 
@@ -243,10 +246,13 @@ May 16, 2016 - Sysdig introducing open source, behavioral security
 
 <!-- 
 Donated to CNCF
+de-facto "Kubernetes, container, cloud" thread detection engine
 
-de-facto "Kubernetes, container, cloud" threat detection engine
+BEHAVIORAL, premisa
 
-signature-based security monitoring  -> behavioral/"event" based approach
+Je nekonecne zpusobu jak se utocnik muze dostat do systemu...
+
+Vy potrebujete detekovat veci, ktere utocnik udela az se tam dostane.
 -->
 
 --- 
@@ -948,8 +954,13 @@ Sysflow.io
 ```
 
 <!-- 
-- Falco, beharvioural - kdy sahnes na  sperky
-- Sysflow, flows/coalescing
+
+- SRE anomaly detection (pyra, prometheus anomaly detection)
+
+--
+
+- Falco, beharvioural
+- Sysflow, flows/coalescing (seskupovaniw)
 
 -->
 
@@ -961,16 +972,24 @@ cloud-native system telemetry framework
 <img src="/images/sysflow-pipeline.png" class="m-10 tp-10 pr-15 center" />
 
 <!--
-SysFlow is a compact open telemetry format 
+ma byt - "kompaktni" open telemetry format 
+
+umoznit provazat sytemove udalosti
 
 semantically compressed system events
 
-that records workload behaviors 
-by connecting event and flow representations of process control flows, file interactions, and network communications
+podobna architektura
+
+(sumarizovat)
 
 - Reduces data footprints drastically when compared to raw system call collection
 - Reduces event fatigue (a.k.a. "too many alerts") 
 - Provides useful context by linking together system event data at the data format level
+
+compress system events
+that records workload behaviors 
+by connecting event and flow representations of process control flows, file interactions, and network communications
+
 -->
 
 ---
