@@ -6,17 +6,19 @@ layout: two-cols
 Speaker
 
 Pracuje jako SRE v F5 Czech Republic s.r.o. 
-- ~30 regional datacenters, 147+ services, 5+ environments
+- ~30 regional datacenters, 147+ services
 - (Volterra.io, Mirantis, IBM, ...)
 
-n(vi)m lover <mdi-circle-small/> maker <mdi-circle-small/> golfer <mdi-circle-small/> quad fpv pilot
 
 <div style="color: #00b4c8">
 
-- http://apealive.net/about_petr/
-- http://twitter.com/epcim
+n(vi)m lover <mdi-circle-small/> maker <mdi-circle-small/> golfer <mdi-circle-small/> quad fpv pilot
+
+
+[twitter.com/epcim](https://twitter.com/epcim)
 
 </div>
+
 
 ::right::
 <img src="/images/pmi.jpg" class="m-15 h-80 rounded shadow center" />
@@ -602,7 +604,7 @@ What we tweaked?
 
 
 
-```sh
+```bash
 rules/
 ├── falco_rules.preload.yaml
 ├── falco_rules-10-exceptions.yaml
@@ -922,6 +924,8 @@ The resulting abstraction encodes a graph structure that enables provenance reas
 -->
 
 ---
+layout: two-cols
+---
 
 # Learn More
 
@@ -940,6 +944,9 @@ The resulting abstraction encodes a graph structure that enables provenance reas
 
 - Employ AI/ML for anomaly detection
 
+::right::
+<img src="/qr.png" class="mt-20 h-80" />
+
 <!-- 
 - [Kubescape](https://github.com/armosec/kubescape) \
   K8s open-source tool providing a multi-cloud K8s single pane of glass, including risk analysis, security compliance, RBAC visualizer and image vulnerabilities scanning
@@ -949,6 +956,8 @@ The resulting abstraction encodes a graph structure that enables provenance reas
 layout: end
 ---
 
+---
+layout: default
 ---
 
 # Backup slides
