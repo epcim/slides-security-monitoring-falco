@@ -54,7 +54,7 @@ layout: two-cols
 Speaker
 
 Pracuje jako SRE v F5 Czech Republic s.r.o. 
-- ~30 regional datacenters, 147+ services
+- 147+ services, ~30 regional datacenters
 - (Volterra.io, Mirantis, IBM, ...)
 
 
@@ -101,21 +101,21 @@ Purpose & requirements
 <!--
 Účel a požadavky
 
-PCI DSS - Payment Card Industry Data Security Standard
-FIPS - Mandatory standard for the protection of sensitive or valuable data within Federal systems
-CIS - Critical Security Controls (CIS Controls)
-NIST  - National Institute of Standards and Technology
-HIPPA - US, personal informations
+- PCI DSS - Payment Card Industry Data Security Standard
+- FIPS - Mandatory standard for the protection of sensitive or valuable data within Federal systems
+- CIS - Critical Security Controls (CIS Controls)
+- NIST  - National Institute of Standards and Technology
+- HIPPA - US, personal informations
 
 --
 
-CIS Controls are a recommended set of actions for cyber defense that provide specific and actionable ways to thwart the most pervasive attacks.
+- CIS Controls are a recommended set of actions for cyber defense that provide specific and actionable ways to thwart the most pervasive attacks.
 
-PCI DSS is set of requirements intended to ensure that all companies that process, store, or transmit credit card information maintain a secure environment. It was launched on September 7, 2006.
+- PCI DSS is set of requirements intended to ensure that all companies that process, store, or transmit credit card information maintain a secure environment. It was launched on September 7, 2006.
 
-To become FIPS compliant, a U.S. government agency or contractor’s computer systems must meet requirements outlined in the FIPS publications numbered 140, 180, 186, 197, 198, 199, 200, 201, and 202. Introduced 2014.
+- To become FIPS compliant, a U.S. government agency or contractor’s computer systems must meet requirements outlined in the FIPS publications numbered 140, 180, 186, 197, 198, 199, 200, 201, and 202. Introduced 2014.
 
-FIPS 140 covers cryptographic module and testing requirements in both hardware and software.
+- FIPS 140 covers cryptographic module and testing requirements in both hardware and software.
  -->
 
 ---
@@ -129,6 +129,7 @@ SecOps coverage
 
 * prevent intrusion
 * detect intrusion
+* audit all critical events
 * configuraion encorcement
 * compliance checks & reporting
 * ...
@@ -157,7 +158,7 @@ Topics and tools
   - filesystem integrity
   - system/service/user audit/logs
   - data access & encryption
-  - security threads, mittigation
+  - security threats mittigation
     * CVEs, vulerabilitties
   - mallicious activity detection
 
@@ -177,11 +178,15 @@ Topics and tools
 </div>
 
 <!--
-missconfiguration
+signature based
+
+prohrabavat stara data
+
+such you probably have even today
 
 how you collect metrics, alerts from  all of these?
 
-signature based
+--
 
 nainstalujes, par alertu, udelat auditora happy a sjizdis ELK
 -->
@@ -211,12 +216,17 @@ Microservices
 <img src="/funny/cloud-monitoring.png" class="m-20 h-80 rounded shadow center" />
 
 <!-- 
-vulnerabilies in ...
+
+* Containers are isolated processes
+* Container images are immuteable, runtime environmnts - often aren't
+
+--
+
+- How do you detect "abnormal" behaviour?
+- vulnerabilies in ...
 
 distributed, logy uz nejsou na 2-3 msitech
-data nejsou jen v databazi ale v zalohach na S3 v cloud atp..
-
-containers, images, binnaries & dependencies
+(v databazi ale v zalohach na S3 v cloud atp..)
 -->
 
 
@@ -328,17 +338,18 @@ layout: center
 Falco architecture
 
 <div class="center">
+
 <img src="/images/falco_architecture.png" class="m-0 h-100 center" />
+
 </div>
+
 <!--
 
-rule engine - rules, in/out
-libsinp - event parsing, state engine, filter
-libscap - capture contorl, dump
+- libscap - capture contorl, dump
+- libsinp - event parsing, state engine, filter
+- rule engine - rules, in/out
 
-* How do you detect "abnormal" behaviour?
-* Containers are isolated processes
-* Container images are immuteable, runtime environmnts - often aren't
+
 -->
 
 ---
@@ -352,6 +363,7 @@ Falco
 - Built-in
 - Module `falco.ko` (w/ DKMS)
 - Userspace instrumentation (based on PTRACE2)
+
 <!--
 Loader container:
 - from pre-build sources for common kernels
@@ -376,6 +388,14 @@ Loader container:
 
 </div>
 
+
+<!-- 
+
+cBPF - Classic BPF, also known as "Linux Packet Filtering", introduced in 1992
+
+eBPF - extended BPF
+-->
+
 ---
 layout: two-cols
 ---
@@ -389,13 +409,6 @@ eBPF
 ::right::
 
 <img src="/screenshots/ebpf-07.png" class="m-0 pt-30 h-100 center" />
-
-<!-- 
-
-cBPF - Classic BPF, also known as "Linux Packet Filtering", introduced in 1992
-
-eBPF - extended BPF
--->
 
 ---
 layout: image-right
@@ -978,6 +991,8 @@ layout: two-cols
 # Learn More
 
 [Documentation](https://falco.org/docs/getting-started/) · [GitHub](https://github.com/falcosecurity) · [Blog](https://falco.org/blog/)
+
+- [Falco & Plugins CloudNativeCon 2022](https://www.youtube.com/watch?v=tZI8Tzf1uzg)
 
 <hr/>
 
