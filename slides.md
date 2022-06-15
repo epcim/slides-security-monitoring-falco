@@ -1,50 +1,3 @@
----
-layout: cover
-theme: seriph # https://sli.dev/themes/gallery.html
-background: https://source.unsplash.com/collection/94734566/1920x1080
-class: 'text-center'
-highlighter: shiki # https://sli.dev/custom/highlighters.html
-lineNumbers: false
-info: |
-  ## Falco
-  cloud native security a observability monitoring
-
-  Learn more at [falco.org](https://falco.org)
-drawings:
-  enabled: true
-  persist: false
-
-# Docs
-# - https://sli.dev/guide/syntax.html
-# - https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
-# - https://www.w3.org/wiki/CSS/Properties/color/keywords
----
-
-# Falco
-
-Cloud native security a observability monitoring
-
-<div class="pt-12">
-  <span @click="$slidev.nav.next" class="px-2 py-1 rounded cursor-pointer" hover="bg-white bg-opacity-10">
-    Dive in! <carbon:arrow-right class="inline"/>
-  </span>
-</div>
-
-<!-- FIXME, add Vue Clock/watch -->
-
-<div class="abs-br m-6 flex gap-2">
-  <a href="https://github.com/epcim/slides-security-monitoring-falco" target="_blank" alt="GitHub"
-    class="text-xl icon-btn opacity-50 !border-none !hover:text-white">
-    <carbon-logo-github />
-  </a>
-</div>
-
-<!-- 
-Security monitoring byl donedávna obvykle jen o sběru všech možných logů a událostí z infrastruktury a jejich zpětné, často nepoužitelné, analýze. Implementace eBPF v linuxovém jádře ovšem otevřela platformu pro zcela jiný přístup. Observability a tracing v reálném čase při rozumných nárocích na zdroje a minimální footprint v systému. Současně se v cloud a kontejnerovém světě podstatně zvyšují nároky na zabezpečení a audit systémů. 
-
-Přednáška je postavena na zkušenostech z implementace Falco, hardening a testování security compliance cloud systémů. Dozvíte se něco málo o základních technologiích a prostředcích security monitoringu, auditu serverů, kontejnerů a kubernetes s Falco. Konfigurace, deployment, Falco rules a vytváření vlastních pravidel. Integrace s Prometheus alertmanager. Testování a compliance fyzických i cloud serverů. Nakonec se podíváme na analytické možnosti SysFlow.io a alerting.
-
--->
 
 ---
 layout: two-cols
@@ -52,8 +5,9 @@ layout: two-cols
 # Petr Michalec
 Speaker
 
-Works as SRE / DEV at F5 Czech Republic s.r.o. 
-(Volterra.io, Mirantis, IBM, ...)
+Pracuje jako SRE v F5 Czech Republic s.r.o. 
+- ~30 regional datacenters, 147+ services, 5+ environments
+- (Volterra.io, Mirantis, IBM, ...)
 
 n(vi)m lover <mdi-circle-small/> maker <mdi-circle-small/> golfer <mdi-circle-small/> quad fpv pilot
 
@@ -95,6 +49,8 @@ Purpose & requirements
 
 
 <!--
+Účel a požadavky
+
 PCI DSS - Payment Card Industry Data Security Standard
 FIPS - Mandatory standard for the protection of sensitive or valuable data within Federal systems
 CIS - Critical Security Controls (CIS Controls)
@@ -137,6 +93,7 @@ Detect Intrusion                > falco
 - motion sensors
 - interior cameras
 -->
+
 ---
 
 # Traditional approach ~2015
@@ -324,6 +281,11 @@ Falco architecture
 <img src="/images/falco_architecture.png" class="m-0 h-100 center" />
 </div>
 <!--
+
+rule engine - rules, in/out
+libsinp - event parsing, state engine, filter
+libscap - capture contorl, dump
+
 * How do you detect "abnormal" behaviour?
 * Containers are isolated processes
 * Container images are immuteable, runtime environmnts - often aren't
@@ -486,6 +448,9 @@ Rules
 - `condition` (filter expression, macro)
 - `output`    (formated message with **core details**)
 - priority  (severity of rule)
+- tag
+- append
+- exceptions (new, not used in upsteream)
 
 </div>
 
@@ -582,8 +547,7 @@ Rules
   condition: >
     spawned_process
     and activity_under_escalated_privilege
-    and not sre_known_infraops_actions
-    and not sre_known_managed_cloud_actions
+    and not in (sre_known_infraops_actions, sre_known_managed_cloud_actions)
   output: >
     Privilege escalation activity (user=%user.name auser=%user.loginname command=%proc.cmdline ppid=%proc.ppid apid=%proc.apid pid=%proc.pid gparent=%proc.aname[2] ggparent=%proc.aname[3] gggparent=%proc.aname[4] user_loginuid=%user.loginuid parent=%proc.pname pcmdline=%proc.pcmdline )
   priority: WARNING
@@ -596,10 +560,14 @@ Rules
     proc.name in (sudo, su)
     or proc.pname in (sudo, su)
     or proc.aname[1] in (sudo, su)
-    or proc.aname[2] in (sudo, su)
-    or proc.aname[3] in (sudo, su)
-    or proc.aname[4] in (sudo, su)
+    ...
 ```
+
+```lua
+- rule: Privilege escalation
+  condition: sf.pproc.uid != 0 and sf.proc.uid = 0 and not entrypoint
+```
+
 --- 
 
 # Compromised server process
@@ -739,24 +707,22 @@ What we tweaked?
 <!-- 
 Dalsi integrace - with more lower priority -> short term search
 -->
----
 
-# Dashboards and alerting
-
-<img src="/images/webui_01-b.png" class="m-0 fit" />
-
-<!--
-Falcosidekick-ui >0.5.3, rewritten month ago
--->
 ---
 
 # Dashboards and alerting
 
 <img src="/images/webui_03-s.png" class="m-0 fit center" />
 
-<!--
-Events
--->
+<!-- Falcosidekick-ui >0.5.3, rewritten month ago -->
+
+---
+
+# Elasticsearch
+Record detail
+
+<img src="/images/es-event-detail-1.png" class="m-0 fit center" />
+
 ---
 
 # Falco Audit in Grafana
@@ -766,12 +732,6 @@ Events
 <!--
 Custom dasshboards
 -->
----
-
-# Elasticsearch
-Record detail
-
-<img src="/images/es-event-detail-1.png" class="m-0 fit center" />
 
 ---
 layout: two-cols
@@ -864,8 +824,8 @@ Plugin
   condition:
     ct.name="ConsoleLogin" and not ct.error exists
     and ct.user.identitytype!="AssumedRole"
-    and json.value[/responseElements/ConsoleLogin]="Success"
-    and json.value[/additionalEventData/MFAUsed]="No"
+      and json.value[/responseElements/ConsoleLogin]="Success"
+        and json.value[/additionalEventData/MFAUsed]="No"
   output:
     Detected a console login without MFA
     (requesting user=%ct.user,
@@ -880,31 +840,86 @@ Falco Cloudtrail plugin can read AWS Cloudtrail logs and emit events for each Cl
 
 ---
 
-# SysFlow.io
-cloud-native system telemetry framework
+# What is next step?
 
-<img src="/images/sysflow-outputs.png" class="m-10 tp-10 pr-15 center" />
+```lua
+- rule: Pet detection, custom plugin
+  condition: video.entities[animal] > 0
+```
 
-<!--
-SysFlow is a compact open telemetry format that records workload behaviors by connecting event and flow representations of process control flows, file interactions, and network communications
+Sysflow.io
+```lua
+- rule: Impair Defenses: Disable or Modify System Firewall
+  desc: Detects disabling security tools
+  condition: sf.opflags = EXEC and
+             ((sf.proc.name in (service_cmds) and
+               sf.proc.args pmatch (security_services) and sf.proc.args pmatch (stop_cmds)) or
+             ( sf.proc.name = setenforce and sf.proc.args = '0'))
+  prefilter: [PE]
+```
 
-The resulting abstraction encodes a graph structure that enables provenance reasoning on host and container environments.
+```lua
+- rule: Large network data transfer with database endpoint
+  condition: ( sf.opflags contains RECV and sf.net.dport = 3306 and sf.flow.rbytes > 1024 ) or
+             ( sf.opflags contains SEND and sf.net.sport = 3306 and sf.flow.wbytes > 1024 )
+  prefilter: [NF]
+```
+
+```lua
+- rule: Privilege escalation
+  condition: sf.pproc.uid != 0 and sf.proc.uid = 0 and not entrypoint
+```
+
+<!-- 
+Falco, beharvioural - kdy sahnes na ... sperky
+Sysflow, flows/coalescing
 -->
 
 ---
 
-# Plugin example
+# SysFlow.io
+cloud-native system telemetry framework
 
-```lua {all|4}
+<img src="/images/sysflow-pipeline.png" class="m-10 tp-10 pr-15 center" />
 
-- rule: Pet detected
-  desc: Pet detected on your work desk
-  condition: video.entities[animal] > 0
-  output: "!!PET ALERT -> source=%video.source, n_pets=%video.entities[animal]\n%evt.plugininfo"
-  priority: Warning
-  source: homesecurity
+<!--
+SysFlow is a compact open telemetry format that records workload behaviors by connecting event and flow representations of process control flows, file interactions, and network communications
 
-```
+semantically compressed system events
+
+
+- Reduces data footprints drastically when compared to raw system call collection
+- Reduces event fatigue (a.k.a. "too many alerts") 
+- Provides useful context by linking together system event data at the data format level
+-->
+
+---
+layout: image-right
+image: /images/sysflow-graphlet-2.png
+---
+
+# SysFlow.io
+
+<img src="/images/sysflow-graphlet.png" class="center" />
+
+- Rate modulation
+- Node-level regulators
+  - HyperLogLog sketch
+  - Count-min sketch
+
+<!-- 
+The resulting abstraction encodes a graph structure that enables provenance reasoning on host and container environments.
+
+- semantically reduce heavy hitters
+  to minimize burst
+
+- Filesystem search..
+  Approximates the number of distinct items in a multiset
+
+- Probabilistic frequency table of events
+  2-D Array M[w cols x d rows]
+  
+-->
 
 ---
 
@@ -914,17 +929,21 @@ The resulting abstraction encodes a graph structure that enables provenance reas
 
 <hr/>
 
-- [SysFlow](https://sysflow.io/) is a cloud-native system telemetry framework that enables the creation of security analytics on a scalable, pluggable open-source platform.
+- [SysFlow](https://sysflow.io/) is a cloud-native system telemetry framework that enables the creation of security analytics on a scalable, pluggable open-source platform
 
   - [SysFlow telemetry](https://github.com/sysflow-telemetry)
   - [SysFlow & Sidekick analytics](https://falco.org/blog/sysflow-falco-sidekick) PoC
+  - [SysFlow policies](https://github.com/sysflow-telemetry/sf-processor/blob/master/docs/POLICIES.md) & [examples](https://github.com/sysflow-telemetry/sf-processor/blob/master/resources/policies/runtimeintegrity)
+
 
 - Plugin [Pet surveillance with falco](https://sysdig.com/blog/pet-surveillance-falco) PoC 
 
-- AI/ML Anomaly detection
+- Employ AI/ML for anomaly detection
 
+<!-- 
 - [Kubescape](https://github.com/armosec/kubescape) \
   K8s open-source tool providing a multi-cloud K8s single pane of glass, including risk analysis, security compliance, RBAC visualizer and image vulnerabilities scanning
+-->
 
 ---
 layout: end
@@ -936,6 +955,13 @@ layout: end
 Falco architectural overview
 
 ![](/images/falco-architectural-overview.png)
+
+---
+
+# Backup slides
+SysFlow architectural overview
+
+<img src="/images/sysflow-arch.png" class="h-100 center" />
 
 --- 
 
@@ -1034,3 +1060,9 @@ https://github.com/falcosecurity/falco/tree/master/rules
     - list: traefik_allowed_inbound_ports_tcp
       items: [443, 80, 8080]
 ```
+
+---
+
+# Dashboards and alerting
+
+<img src="/images/webui_01-b.png" class="m-0 fit" />
