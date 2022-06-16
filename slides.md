@@ -71,6 +71,12 @@ n(vi)m lover <mdi-circle-small/> maker <mdi-circle-small/> golfer <mdi-circle-sm
 ::right::
 <img src="/images/pmi.jpg" class="m-15 h-80 rounded shadow center" />
 
+<!--
+- nedelam security
+- devops < config mgmt
+- os image build, deployment
+-->
+
 ---
 layout: image-right
 image: /funny/camera-agent.png
@@ -155,7 +161,7 @@ Topics and tools
 <div grid="~ cols-2 gap-4">
 <div>
 
-  - network IDS
+  - network IDS, WAF
   - filesystem integrity
   - system/service/user audit/logs
   - data access & encryption
@@ -181,7 +187,7 @@ Topics and tools
 <!--
 you probably have even today
 
-prikladem: antivirovs detekce, ruzna firewall reseni
+prikladem: antivirovs detekce, ruzna firewall reseni, WAF
 
 signature based
 
