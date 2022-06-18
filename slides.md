@@ -63,7 +63,8 @@ Pracuje jako SRE v F5 Czech Republic s.r.o.
 n(vi)m lover <mdi-circle-small/> maker <mdi-circle-small/> golfer <mdi-circle-small/> quad fpv pilot
 
 
-[twitter.com/epcim](https://twitter.com/epcim)
+* [twitter.com/epcim](https://twitter.com/epcim)
+* [github.com/epcim](https://github.com/epcim), [Gists](https://gist.github.com/epcim)
 
 </div>
 
@@ -474,7 +475,7 @@ Deployment
 - Falco-sidekick, prom. exporter
 - Falco-sidekick UI
 - Grafana dashboards
-- ..., SysFlow, ELK
+- Alertmanager, Loki, ES, Kibana
 - ..., Plugins
 
 Daemonset
@@ -610,6 +611,11 @@ Rules
            ggparent=%proc.aname[3] gggparent=%proc.aname[4] container_id=%container.id image=%container.image.repository)"
   priority: ERROR
   tags: [filesystem, mitre_persistence]
+```
+
+```lua
+- macro: open_write
+  condition: evt.type in (open,openat,openat2) and evt.is_open_write=true and fd.typechar='f' and fd.num>=0
 ```
 
 
